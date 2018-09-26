@@ -2,7 +2,10 @@
 set -e
 
 # Paths
+mkdir -p /etc/sftp/
 userConfPath="/etc/sftp/users.conf"
+# touch userConfPath so inotify will watch it
+touch "${userConfPath}"
 userConfPathLegacy="/etc/sftp-users.conf"
 userConfFinalPath="/var/run/sftp/users.conf"
 
@@ -17,7 +20,8 @@ reArgsMaybe="^[^:[:space:]]+:.*$" # Smallest indication of attempt to use argume
 reArgSkip='^([[:blank:]]*#.*|[[:blank:]]*)$' # comment or empty line
 
 function log() {
-    echo "[configurator] $@"
+    timestamp=$(date +"%b %d %H:%M:%S")
+    echo "${timestamp} $@"
 }
 
 function validateArg() {
@@ -62,8 +66,16 @@ function createKeys() {
     fi
 }
 
+function createLogDevices() {
+    log "Creating logs bind mount for user: $1"
+    mkdir -p /home/$1/dev
+    touch /home/$1/dev/log /home/$1/dev/mcelog
+    mount -o bind /dev/log /home/$1/dev/log
+    mount -o bind /dev/mcelog /home/$1/dev/mcelog
+}
+
 function createUser() {
-    log "Parsing user data: \"$@\""
+    log "Parsing user data for $(echo $@ | cut -d: -f1)"
 
     IFS=':' read -a args <<< $@
 
@@ -130,13 +142,16 @@ function createUser() {
             fi
         done
     fi
+
+    createLogDevices "${user}"
 }
 
 function main() {
 	mkdir -p "$(dirname $userConfFinalPath)"
 
 	# Append mounted config to final config
-	if [ -f "$userConfPath" ]; then
+	if [ -f "$userConfPath" ] && [ "$(cat ${userConfPath})" != "" ]; then
+                log "Creating users from ${userConfPath}"
 		cat "$userConfPath" | grep -v -E "$reArgSkip" > "$userConfFinalPath"
 	fi
 
@@ -146,6 +161,7 @@ function main() {
 
 	if [ -n "$SFTP_USERS" ]; then
 		# Append users from environment variable to final config
+                log "Creating users from environment"
 		usersFromEnv=($SFTP_USERS) # as array
 		for user in "${usersFromEnv[@]}"; do
 			echo "$user" >> "$userConfFinalPath"
@@ -155,6 +171,7 @@ function main() {
 	# Check that we have users in config
 	if [[ -f "$userConfFinalPath" && "$(cat "$userConfFinalPath" | wc -l)" > 0 ]]; then
 	    # Import users from final conf file
+            log "Importing users from ${userConfFinalPath}"
 	    while IFS= read -r user || [[ -n "$user" ]]; do
 		createUser "$user"
 	    done < "$userConfFinalPath"
@@ -197,9 +214,9 @@ function init() {
 }
 
 init
-main
+main "$@"
 runCustomScripts
 inotifywait -m -e modify $userConfPath |
 while read events; do
-    main
+    main "$@"
 done
