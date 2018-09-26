@@ -1,8 +1,7 @@
-FROM ubuntu:18.04
+FROM debian:stretch
 LABEL MAINTAINER="Daniel Pryor [pryorda.net]"
 
 # Steps done in one RUN layer:
-# - Build rsyslog
 # - Install packages
 # - OpenSSH needs /var/run/sshd to run
 # - Remove generic host keys, entrypoint generates unique keys
