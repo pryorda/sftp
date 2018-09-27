@@ -71,7 +71,6 @@ function createLogDevices() {
     mkdir -p /home/$1/dev
     touch /home/$1/dev/log /home/$1/dev/mcelog
     mount -o bind /dev/log /home/$1/dev/log
-    mount -o bind /dev/mcelog /home/$1/dev/mcelog
 }
 
 function createUser() {
