@@ -1,4 +1,5 @@
 # SFTP
+## Currently requires privileged mode for logging to work. I'm working on another solution, but this is what works for now.
 
 ![Docker Automated build](https://img.shields.io/docker/automated/atmoz/sftp.svg) ![Docker Build Status](https://img.shields.io/docker/build/atmoz/sftp.svg) ![Docker Stars](https://img.shields.io/docker/stars/atmoz/sftp.svg) ![Docker Pulls](https://img.shields.io/docker/pulls/atmoz/sftp.svg)
 
