@@ -1,0 +1,22 @@
+version: '3'
+services:
+  sftp:
+    build: ../
+    image: sftp
+    networks:
+      sftp:
+        aliases:
+          - sftp
+    privileged: true
+    command: "foo:pass:::incoming"
+
+  sftp-bench:
+    build: ./
+    image: sftp-bench
+    command: "--port 22 --mode sftp -c 1 -p 20 -P /tmp/file1 --password pass foo sftp"
+    networks:
+      - sftp
+
+
+networks:
+  sftp:

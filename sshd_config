@@ -13,6 +13,9 @@ PermitRootLogin no
 X11Forwarding no
 AllowTcpForwarding no
 
+MaxSessions 50
+MaxStartups 100:30:200
+
 # Force sftp and chroot jail
 Subsystem sftp internal-sftp -f AUTHPRIV -l INFO
 ForceCommand internal-sftp -f AUTHPRIV -l INFO
