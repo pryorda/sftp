@@ -12,7 +12,7 @@ RUN apt-get update && \
     mkdir -p /var/empty && \
     chown root:sys /var/empty && \
     chmod 755 /var/empty && \
-	  groupadd sshd && \
+    groupadd sshd && \
     useradd -g sshd -c 'sshd privsep' -d /var/empty -s /bin/false sshd && \
     autoreconf -fi && ./configure --with-privsep-user=sshd --with-privsep-path=/var/empty --sysconfdir=/etc/ssh && \
     make && make install && \
