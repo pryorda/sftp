@@ -19,7 +19,10 @@ ForceCommand internal-sftp -f AUTHPRIV -l INFO
 ChrootDirectory %h
 
 # Enable this for more logs
-# LogLevel VERBOSE
-
 SyslogFacility AUTHPRIV
 LogLevel INFO
+
+# HPN Settings
+HPNDisabled=no
+TcpRcvBufPoll=yes
+NoneEnabled=yes

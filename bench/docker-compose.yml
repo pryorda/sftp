@@ -1,0 +1,23 @@
+version: '3'
+services:
+#  sftp:
+#    build: ../
+#    image: sftp
+#    networks:
+#      sftp:
+#        aliases:
+#          - sftp
+#    command: "foo:pass:::incoming"
+
+  sftp-bench:
+    build: ./
+    image: sftp-bench
+    command: "--port 2222 --mode sftp -c 10 -p 20 -P /tmp/file1 --password pass foo 192.168.2.4"
+#    networks:
+#      - sftp
+#    links:
+#      - sftp
+
+
+networks:
+  sftp:
