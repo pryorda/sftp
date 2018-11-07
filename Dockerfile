@@ -1,12 +1,13 @@
 FROM debian:stretch
-LABEL MAINTAINER="Daniel Pryor [pryorda.net]"
+LABEL MAINTAINER="Daniel Pryor [dpryor@pryorda.net]"
+LABEL VERSION="v0.1.4"
 
 # Steps done in one RUN layer:
 # - Install packages
 # - OpenSSH needs /var/run/sshd to run
 # - Remove generic host keys, entrypoint generates unique keys
 RUN apt-get update && \
-    apt-get -y install openssh-server supervisor inotify-tools busybox-syslogd && \
+    apt-get -y install --no-install-recommends openssh-server supervisor inotify-tools busybox-syslogd && \
     rm -rf /var/lib/apt/lists/* && \
     mkdir -p /var/run/sshd && \
     rm -f /etc/ssh/ssh_host_*key*

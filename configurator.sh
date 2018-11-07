@@ -67,10 +67,11 @@ function createKeys() {
 }
 
 function createLogDevices() {
-    log "Creating logs bind mount for user: $1"
+    log "Adding logs bind mount for user: $1"
     mkdir -p /home/$1/dev
-    touch /home/$1/dev/log /home/$1/dev/mcelog
+    touch /home/$1/dev/log
     mount -o bind /dev/log /home/$1/dev/log
+    log "Completed adding log mounts for user: $1"
 }
 
 function createUser() {
@@ -150,35 +151,39 @@ function main() {
 
 	# Append mounted config to final config
 	if [ -f "$userConfPath" ] && [ "$(cat ${userConfPath})" != "" ]; then
-                log "Creating users from ${userConfPath}"
-		cat "$userConfPath" | grep -v -E "$reArgSkip" > "$userConfFinalPath"
+        log "Adding users from ${userConfPath} to ${userConfFinalPath}"
+		cat "${userConfPath}" | grep -v -E "$reArgSkip" > "$userConfFinalPath"
 	fi
-
-	for user in "$@"; do
+    
+    IFS=' ' read -r -a users <<< "$@"
+	for user in "${users[@]}"; do
+        log "Adding users from ARGS to ${userConfFinalPath}"
 		echo "$user" >> "$userConfFinalPath"
 	done
 
 	if [ -n "$SFTP_USERS" ]; then
+        unset user
 		# Append users from environment variable to final config
-                log "Creating users from environment"
-		usersFromEnv=($SFTP_USERS) # as array
+        log "Adding users from environment to ${userConfFinalPath}"
+		IFS=' ' read -r -a usersFromEnv <<< "${SFTP_USERS}"
 		for user in "${usersFromEnv[@]}"; do
 			echo "$user" >> "$userConfFinalPath"
 		done
 	fi
 
 	# Check that we have users in config
-	if [[ -f "$userConfFinalPath" && "$(cat "$userConfFinalPath" | wc -l)" > 0 ]]; then
+	if [[ -f "$userConfFinalPath" && "$(cat "$userConfFinalPath" | wc -l)" -gt 0 ]]; then
 	    # Import users from final conf file
-            log "Importing users from ${userConfFinalPath}"
-	    while IFS= read -r user || [[ -n "$user" ]]; do
-		createUser "$user"
+        log "Importing users from ${userConfFinalPath}"
+        log "Users: $(wc -l ${userConfFinalPath})"
+	    while IFS="" read -r line || [[ -n "$line" ]]; do
+		    createUser "$line"
 	    done < "$userConfFinalPath"
 	else
 	    log "Warning: No users provided!"
 	fi
 
-	rm $userConfFinalPath
+	mv -v $userConfFinalPath $userConfFinalPath.old || true
 }
 
 function runCustomScripts() {
@@ -201,14 +206,6 @@ function init() {
     if [ ! -f "$userConfPath" -a -f "$userConfPathLegacy" ]; then
         mkdir -p "$(dirname $userConfPath)"
         ln -s "$userConfPathLegacy" "$userConfPath"
-    fi
-
-    # Generate unique ssh keys for this container, if needed
-    if [ ! -f /etc/ssh/ssh_host_ed25519_key ]; then
-        ssh-keygen -t ed25519 -f /etc/ssh/ssh_host_ed25519_key -N ''
-    fi
-    if [ ! -f /etc/ssh/ssh_host_rsa_key ]; then
-        ssh-keygen -t rsa -b 4096 -f /etc/ssh/ssh_host_rsa_key -N ''
     fi
 }
 
