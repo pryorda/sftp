@@ -1,6 +1,6 @@
 FROM debian:stretch
 LABEL MAINTAINER="Daniel Pryor [dpryor@pryorda.net]"
-LABEL VERSION="v0.1.4"
+LABEL VERSION="v0.1.5"
 
 # Steps done in one RUN layer:
 # - Install packages
@@ -18,4 +18,3 @@ COPY entrypoint.sh /
 EXPOSE 22
 
 ENTRYPOINT ["/entrypoint.sh"]
-

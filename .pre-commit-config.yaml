@@ -35,7 +35,6 @@ repos:
   sha: 1.10.2
   hooks:
     - id: script-must-have-extension
-    - id: script-must-not-have-extension
     - id: shellcheck
     - id: shfmt
 - repo: https://github.com/pryorda/dockerfilelint-precommit-hooks
