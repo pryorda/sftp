@@ -1,16 +1,14 @@
 # SFTP
 ## Currently requires privileged mode for logging to work. I'm working on another solution, but this is what works for now.
 
-![Docker Automated build](https://img.shields.io/docker/automated/atmoz/sftp.svg) ![Docker Build Status](https://img.shields.io/docker/build/atmoz/sftp.svg) ![Docker Stars](https://img.shields.io/docker/stars/atmoz/sftp.svg) ![Docker Pulls](https://img.shields.io/docker/pulls/atmoz/sftp.svg)
+![Docker Automated build](https://img.shields.io/docker/automated/pryorda/sftp.svg) ![Docker Build Status](https://img.shields.io/docker/build/pryorda/sftp.svg) ![Docker Stars](https://img.shields.io/docker/stars/pryorda/sftp.svg) ![Docker Pulls](https://img.shields.io/docker/pulls/pryorda/sftp.svg)
 
-![OpenSSH logo](https://raw.githubusercontent.com/atmoz/sftp/master/openssh.png "Powered by OpenSSH")
+![OpenSSH logo](https://raw.githubusercontent.com/pryorda/sftp/master/openssh.png "Powered by OpenSSH")
 
 # Supported tags and respective `Dockerfile` links
 
-- [`debian-stretch`, `debian`, `latest` (*Dockerfile*)](https://github.com/atmoz/sftp/blob/master/Dockerfile) [![](https://images.microbadger.com/badges/image/atmoz/sftp.svg)](http://microbadger.com/images/atmoz/sftp "Get your own image badge on microbadger.com")
-- [`debian-jessie` (*Dockerfile*)](https://github.com/atmoz/sftp/blob/debian-jessie/Dockerfile) [![](https://images.microbadger.com/badges/image/atmoz/sftp:debian-jessie.svg)](http://microbadger.com/images/atmoz/sftp:debian-jessie "Get your own image badge on microbadger.com")
-- [`alpine-3.7`, `alpine` (*Dockerfile*)](https://github.com/atmoz/sftp/blob/alpine/Dockerfile) [![](https://images.microbadger.com/badges/image/atmoz/sftp:alpine-3.7.svg)](http://microbadger.com/images/atmoz/sftp:alpine-3.7 "Get your own image badge on microbadger.com")
-- [`alpine-3.6` (*Dockerfile*)](https://github.com/atmoz/sftp/blob/alpine-3.6/Dockerfile) [![](https://images.microbadger.com/badges/image/atmoz/sftp:alpine-3.6.svg)](http://microbadger.com/images/atmoz/sftp:alpine-3.6 "Get your own image badge on microbadger.com")
+- [`latest` (*Dockerfile*)](https://github.com/pryorda/sftp/blob/master/Dockerfile) [![](https://images.microbadger.com/badges/image/pryorda/sftp.svg)](http://microbadger.com/images/pryorda/sftp "Get your own image badge on microbadger.com")
+- [`v0.1.5` (*Dockerfile*)](https://github.com/pryorda/sftp/blob/v0.1.5/Dockerfile) [![](https://images.microbadger.com/badges/image/pryorda/sftp:v0.1.5.svg)](http://microbadger.com/images/pryorda/sftp:v0.1.5 "Get your own image badge on microbadger.com")
 
 # Securely share your files
 
@@ -26,8 +24,8 @@ This is an automated build linked with the [debian](https://hub.docker.com/_/deb
     your mounted volumes with permissions matching your host filesystem.
   - Directory names at the end will be created under user's home directory with
     write permission, if they aren't already present.
-  - You can define user ssh public keys via user_ssh_keys="ssh_key1;ssh_key2" 
-    delimeted by ';' instead of mapping the keys in directly. The user_ should be 
+  - You can define user ssh public keys via user_ssh_keys="ssh_key1;ssh_key2"
+    delimeted by ';' instead of mapping the keys in directly. The user_ should be
     replaced with the username you're using.
 - Mount volumes
   - The users are chrooted to their home directory, so you can mount the
@@ -43,7 +41,7 @@ This is an automated build linked with the [debian](https://hub.docker.com/_/deb
 ## Simplest docker run example
 
 ```
-docker run -p 22:22 -d -e foo_ssh_key="ssh-rsa ... comment" atmoz/sftp foo:pass:::upload
+docker run -p 22:22 -d -e foo_ssh_key="ssh-rsa ... comment" pryorda/sftp foo:pass:::upload
 ```
 
 User "foo" with password "pass" can login with sftp and upload files to a folder called "upload". No mounted directories or custom UID/GID. Later you can inspect the files and use `--volumes-from` to mount them somewhere else (or see next example).
@@ -55,7 +53,7 @@ Let's mount a directory and set UID:
 ```
 docker run \
     -v /host/upload:/home/foo/upload \
-    -p 2222:22 -d atmoz/sftp \
+    -p 2222:22 -d pryorda/sftp \
     foo:pass:1001
 ```
 
@@ -63,7 +61,7 @@ docker run \
 
 ```
 sftp:
-    image: atmoz/sftp
+    image: pryorda/sftp
     volumes:
         - /host/upload:/home/foo/upload
     ports:
@@ -81,7 +79,7 @@ The OpenSSH server runs by default on port 22, and in this example, we are forwa
 docker run \
     -v /host/users.conf:/etc/sftp/users.conf:ro \
     -v mySftpVolume:/home \
-    -p 2222:22 -d atmoz/sftp
+    -p 2222:22 -d pryorda/sftp
 ```
 
 /host/users.conf:
@@ -99,12 +97,12 @@ Add `:e` behind password to mark it as encrypted. Use single quotes if using ter
 ```
 docker run \
     -v /host/share:/home/foo/share \
-    -p 2222:22 -d atmoz/sftp \
+    -p 2222:22 -d pryorda/sftp \
     'foo:$1$0G2g0GSt$ewU0t6GXG15.0hWoOX8X9.:e:1001'
 ```
 
-Tip: you can use [atmoz/makepasswd](https://hub.docker.com/r/atmoz/makepasswd/) to generate encrypted passwords:  
-`echo -n "your-password" | docker run -i --rm atmoz/makepasswd --crypt-md5 --clearfrom=-`
+Tip: you can use [pryorda/makepasswd](https://hub.docker.com/r/pryorda/makepasswd/) to generate encrypted passwords:  
+`echo -n "your-password" | docker run -i --rm pryorda/makepasswd --crypt-md5 --clearfrom=-`
 
 ## Logging in with SSH keys
 
@@ -115,7 +113,7 @@ docker run \
     -v /host/id_rsa.pub:/home/foo/.ssh/keys/id_rsa.pub:ro \
     -v /host/id_other.pub:/home/foo/.ssh/keys/id_other.pub:ro \
     -v /host/share:/home/foo/share \
-    -p 2222:22 -d atmoz/sftp \
+    -p 2222:22 -d pryorda/sftp \
     foo::1001
 ```
 
@@ -128,7 +126,7 @@ docker run \
     -v /host/ssh_host_ed25519_key:/etc/ssh/ssh_host_ed25519_key \
     -v /host/ssh_host_rsa_key:/etc/ssh/ssh_host_rsa_key \
     -v /host/share:/home/foo/share \
-    -p 2222:22 -d atmoz/sftp \
+    -p 2222:22 -d pryorda/sftp \
     foo::1001
 ```
 
